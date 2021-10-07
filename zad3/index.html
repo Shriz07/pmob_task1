@@ -21,6 +21,11 @@
             let colorFlag = 0;
 
             function changeColor() {
+                if(blue1 > 254 || green1 < 1)
+                    colorFlag = 0;
+                if(blue1 < 1 || green1 > 254)
+                    colorFlag = 1;
+                    
                 if(colorFlag == 0)
                 {
                     blue1 -= 1;
@@ -35,11 +40,6 @@
                     blue2 -= 1;
                     green2 += 1;
                 }
-
-                if(blue1 > 254 || green1 < 1)
-                    colorFlag = 0;
-                if(blue1 < 1 || green1 > 254)
-                    colorFlag = 1;
 
                 if(directionFlag == 0) 
                 {
