@@ -17,6 +17,24 @@
             ctx.fillStyle = 'green';
             ctx.fill();
             ctx.stroke();
+
+            var color = 0;
+
+            var interval = window.setInterval(function(){
+                var ctx = c.getContext("2d");
+                if(color == 0)
+                {
+                    ctx.fillStyle = 'blue';
+                    ctx.fill();
+                    color = 1;
+                }
+                else
+                {
+                    ctx.fillStyle = 'green';
+                    ctx.fill();
+                    color = 0;
+                }
+            }, 1000)
         </script>
     </body>
 </html>
