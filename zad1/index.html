@@ -18,12 +18,12 @@
             ctx.fill();
             ctx.stroke();
 
-            var color = 0;
+            var colorFlag = 0;
 
             function changeColor() {
                 window.setInterval(function(){
                 var ctx = c.getContext("2d");
-                if(color == 0)
+                if(colorFlag == 0)
                 {
                     ctx.fillStyle = 'blue';
                     ctx.fill();
