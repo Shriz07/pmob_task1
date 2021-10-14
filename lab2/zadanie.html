@@ -33,31 +33,29 @@
                 }
             }
 
-            async function drawBall() {
+            async function drawBall(x, y, radius, color) {
+                ctx.beginPath();
+                ctx.arc(x, y, radius, 0, 2 * Math.PI);
+                ctx.fillStyle = color; 
+                ctx.fill();
+            }
+
+            async function moveBall() {
                 while(x < 410)
                 {
-                    ctx.beginPath();
-                    ctx.arc(x, y, 48, 0, 2 * Math.PI);
-                    ctx.fillStyle = 'black'; 
-                    ctx.fill();
+                    drawBall(x, y, 48, 'black');
                     await sleep(25);
-                    ctx.beginPath();
-                    ctx.arc(x, y, 49, 0, 2 * Math.PI);
-                    ctx.fillStyle = 'white'; 
-                    ctx.fill();
+                    drawBall(x, y, 49, 'white');
                     x += 3;
                     y += 3;
                 }
-                ctx.beginPath();
-                ctx.arc(x, y, 49, 0, 2 * Math.PI);
-                ctx.fillStyle = 'black'; 
-                ctx.fill();
+                drawBall(x, y, 49, 'black');
             }
 
             async function draw()
             {
                 await drawStairs();
-                await drawBall();
+                await moveBall();
             }
 
             function sleep(ms) {
