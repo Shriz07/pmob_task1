@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+    </head>
+    <body>
+        <canvas id="myCanvas" width="800" height="600"></canvas>
+
+        <script>
+            var c = document.getElementById("myCanvas");
+            var ctx = c.getContext("2d");
+            let stairX = 20;
+            let stairY = 100;
+            let x = 125;
+            let y = 75;
+
+            function drawSingleStair(x, y) {
+                ctx.beginPath();
+                ctx.rect(x, y, 60, 60);
+                ctx.stroke();
+            }
+
+            async function drawStairs() {
+                for(let i = 0; i < 5; i++)
+                {
+                    drawSingleStair(stairX, stairY);
+                    await sleep(1000);
+                    stairX += 60;
+                    stairY += 60;
+                }
+            }
+
+            async function drawBall() {
+                while(x < 410)
+                {
+                    ctx.beginPath();
+                    ctx.arc(x, y, 48, 0, 2 * Math.PI);
+                    ctx.fillStyle = 'black'; 
+                    ctx.fill();
+                    await sleep(25);
+                    ctx.beginPath();
+                    ctx.arc(x, y, 49, 0, 2 * Math.PI);
+                    ctx.fillStyle = 'white'; 
+                    ctx.fill();
+                    x += 3;
+                    y += 3;
+                }
+                ctx.beginPath();
+                ctx.arc(x, y, 49, 0, 2 * Math.PI);
+                ctx.fillStyle = 'black'; 
+                ctx.fill();
+            }
+
+            async function draw()
+            {
+                await drawStairs();
+                await drawBall();
+            }
+
+            function sleep(ms) {
+                return new Promise((resolve) => setTimeout(resolve, ms));
+            }
+            draw();
+        </script>
+    </body>
+</html>
