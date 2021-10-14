@@ -27,21 +27,21 @@
                 {
                     blue1 -= 1;
                     green1 += 1;
-                    blue2 += 1;
-                    green2 -= 1;
+                    /*blue2 += 1;
+                    green2 -= 1;*/
                 }
                 else
                 {
                     blue1 += 1;
                     green1 -= 1;
-                    blue2 -= 1;
-                    green2 += 1;
+                    /*blue2 -= 1;
+                    green2 += 1;*/
                 }
 
                 ctx.beginPath();
                 let gradient = ctx.createLinearGradient(0, 0, 0, 800);
                 gradient.addColorStop(0, `rgb(0,${green1},${blue1})`);
-                gradient.addColorStop(1, `rgb(0,${green2},${blue2})`);
+                //gradient.addColorStop(1, `rgb(0,${green2},${blue2})`);
                 ctx.fillStyle = gradient;
                 ctx.arc(95, 50, 40, 0, 2 * Math.PI);
                 ctx.fill();
