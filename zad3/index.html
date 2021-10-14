@@ -12,8 +12,8 @@
         <script>
             var c = document.getElementById("myCanvas");
             var ctx = c.getContext("2d");
-            let blue1 = 0, blue2 = 255;
-            let green1 = 255, green2 = 0;
+            let blue = 0;
+            let green = 255;
             let x = 200;
             let y = 400;
 
@@ -21,24 +21,20 @@
             let colorFlag = 0;
 
             function changeColor() {
-                if(blue1 > 254 || green1 < 1)
+                if(blue > 254 || green < 1)
                     colorFlag = 0;
-                if(blue1 < 1 || green1 > 254)
+                if(blue < 1 || green > 254)
                     colorFlag = 1;
                     
                 if(colorFlag == 0)
                 {
-                    blue1 -= 1;
-                    green1 += 1;
-                    blue2 += 1;
-                    green2 -= 1;
+                    blue -= 1;
+                    green += 1;
                 }
                 else
                 {
-                    blue1 += 1;
-                    green1 -= 1;
-                    blue2 -= 1;
-                    green2 += 1;
+                    blue += 1;
+                    green -= 1;
                 }
 
                 if(directionFlag == 0) 
@@ -57,8 +53,7 @@
                 ctx.clearRect(0, 0, c.width, c.height);
                 ctx.beginPath();
                 let gradient = ctx.createLinearGradient(150, 750, 200, 800);
-                gradient.addColorStop(0, `rgb(0,${green1},${blue1})`);
-                gradient.addColorStop(1, `rgb(0,${green2},${blue2})`);
+                gradient.addColorStop(0, `rgb(0,${green},${blue})`);
                 ctx.fillStyle = gradient;
                 ctx.arc(x, y, 40, 0, 2 * Math.PI);
                 ctx.fill();
