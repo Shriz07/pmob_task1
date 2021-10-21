@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+    </head>
+    <body>
+        <canvas id="myCanvas" width="800" height="600"></canvas>
+
+        <script>
+            var c = document.getElementById("myCanvas");
+            var ctx = c.getContext("2d");
+            let x = 400;
+            let y = 400;
+            ctx.beginPath();9
+            ctx.rect(x, y, 100, 30);
+            ctx.fillStyle = 'black';
+            ctx.fill();
+
+            function drawRectangle(posX, posY) {
+                ctx.beginPath();
+                ctx.rect(posX, posY, 100, 30);
+                ctx.fillStyle = 'black';
+                ctx.fill();
+            }
+
+            function removeRectangle(posX, posY) {
+                ctx.beginPath();
+                ctx.rect(posX, posY, 100, 30);
+                ctx.fillStyle = 'white';
+                ctx.fill();
+            }
+
+            async function drawBall(posX, posY) {
+                while(posY > 0)
+                {
+                    ctx.beginPath();
+                    ctx.arc(posX + 50, posY - 16, 15, 0, 2 * Math.PI);
+                    ctx.fillStyle = 'green';
+                    ctx.fill();
+                    await sleep(30);
+                    ctx.beginPath();
+                    ctx.arc(posX + 50, posY - 16, 16, 0, 2 * Math.PI);
+                    ctx.fillStyle = 'white';
+                    ctx.fill();
+                    posY -= 10;
+                }
+            }
+
+            function keyReaction(e) {
+                e = e || window.event;
+
+                if(e.keyCode == '37')
+                {
+                    if(x > 0)
+                    {
+                        removeRectangle(x, y);
+                        x -= 15;
+                        drawRectangle(x, y);
+                    }
+                } 
+                else if(e.keyCode == '39')
+                {
+                    if(x < 700)
+                    {
+                        removeRectangle(x, y);
+                        x += 15;
+                        drawRectangle(x, y);
+                    }
+                }
+                else if(e.keyCode == '32')
+                {
+                    drawBall(x, y);
+                }
+            }
+
+            function sleep(ms) {
+                return new Promise((resolve) => setTimeout(resolve, ms));
+            }
+
+            document.onkeydown = keyReaction;
+        </script>
+    </body>
+</html>
