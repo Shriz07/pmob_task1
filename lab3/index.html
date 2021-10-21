@@ -10,43 +10,99 @@
         <canvas id="myCanvas" width="800" height="600"></canvas>
 
         <script>
+            class Ball{
+                constructor() {
+                    this.width = x + 50;
+                    this.height = y - 16;
+                    this.first = true;
+                    this.radius = 15;
+                }
+
+                getRadius() {
+                    return this.radius;
+                }
+
+                getWidth() {
+                    return this.width;
+                }
+
+                getHeight() {
+                    return this.height;
+                }
+
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.width, this.height, this.radius, 0, 2 * Math.PI);
+                    ctx.fillStyle = 'red';
+                    ctx.fill();
+                    ctx.closePath();
+                }
+
+                move() {
+                    this.height -= 10;
+                }
+            }
+
+            class Alien{
+                constructor() {
+                    this.radius = 20;
+                    this.speed = getRandomInt(3, 10);
+                    this.width = getRandomInt(50, c.width - 50);
+                    this.height = 0;
+                }
+
+                getRadius() {
+                    return this.radius;
+                }
+
+                getWidth() {
+                    return this.width;
+                }
+
+                getHeight() {
+                    return this.height;
+                }
+
+                move() {
+                    this.height += this.speed;
+                }
+
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.width, this.height, this.radius, 0, 2 * Math.PI);
+                    ctx.fillStyle = 'green';
+                    ctx.fill();
+                    ctx.closePath();
+                }
+            }
+
             var c = document.getElementById("myCanvas");
             var ctx = c.getContext("2d");
             let x = 400;
-            let y = 400;
-            ctx.beginPath();9
-            ctx.rect(x, y, 100, 30);
-            ctx.fillStyle = 'black';
-            ctx.fill();
+            let y = 550;
+            let points = 0;
+            ctx.font = "30px Arial";
+            ctx.fillText('Hello', 100, 100);
 
-            function drawRectangle(posX, posY) {
+
+            const balls = [];
+            const aliens = [];
+
+            function drawPoints() {
+                ctx.font = "30px Arial";
+                ctx.fillText(points, 25, 25);
+            }
+
+            function clearBoard() {
+                ctx.clearRect(0, 0, c.width, c.height);
+            }
+
+            function drawRectangle() {
                 ctx.beginPath();
-                ctx.rect(posX, posY, 100, 30);
+                ctx.rect(x, y, 100, 30);
                 ctx.fillStyle = 'black';
                 ctx.fill();
-            }
-
-            function removeRectangle(posX, posY) {
-                ctx.beginPath();
-                ctx.rect(posX, posY, 100, 30);
-                ctx.fillStyle = 'white';
-                ctx.fill();
-            }
-
-            async function drawBall(posX, posY) {
-                while(posY > 0)
-                {
-                    ctx.beginPath();
-                    ctx.arc(posX + 50, posY - 16, 15, 0, 2 * Math.PI);
-                    ctx.fillStyle = 'green';
-                    ctx.fill();
-                    await sleep(30);
-                    ctx.beginPath();
-                    ctx.arc(posX + 50, posY - 16, 16, 0, 2 * Math.PI);
-                    ctx.fillStyle = 'white';
-                    ctx.fill();
-                    posY -= 10;
-                }
+                ctx.closePath();
             }
 
             function keyReaction(e) {
@@ -56,31 +112,78 @@
                 {
                     if(x > 0)
                     {
-                        removeRectangle(x, y);
                         x -= 15;
-                        drawRectangle(x, y);
                     }
                 } 
                 else if(e.keyCode == '39')
                 {
                     if(x < 700)
                     {
-                        removeRectangle(x, y);
                         x += 15;
-                        drawRectangle(x, y);
                     }
                 }
                 else if(e.keyCode == '32')
                 {
-                    drawBall(x, y);
+                    balls.push(new Ball());
                 }
             }
 
-            function sleep(ms) {
-                return new Promise((resolve) => setTimeout(resolve, ms));
+            function checkCollisions() {
+                balls.forEach((ball) => {
+                    aliens.forEach((alien) => {
+                        if(checkSingleCollision(ball, alien)) {
+                            deleteColidingObjects(ball, alien);
+                            points++;
+                        }
+                    });
+                });
             }
 
+            function checkSingleCollision(alien, ball) {
+                let dx = alien.getWidth() - ball.getWidth(),
+                dy = alien.getHeight() - ball.getHeight(),
+                r = alien.getRadius() + ball.getRadius();
+
+                return (dx * dx + dy * dy <= r * r);
+            }
+
+            function deleteColidingObjects(ball, alien) {
+                let i = balls.indexOf(ball); 
+                balls.splice(i, 1);
+                delete ball;
+                i = aliens.indexOf(alien);
+                aliens.splice(i, 1);
+                delete alien;
+            }
+
+            setInterval(() => {
+                clearBoard();
+                drawRectangle();
+                checkCollisions();
+                drawPoints();
+                balls.forEach((ball) => {
+                    ball.draw();
+                    ball.move();
+                })
+                aliens.forEach((alien) => {
+                    alien.draw();
+                    alien.move();
+                })
+            }, 30);
+
+            setInterval(() => {
+                newBall = getRandomInt(1, 2);
+                if(newBall == 1)
+                    aliens.push(new Alien());
+            }, 3000);
+
             document.onkeydown = keyReaction;
+
+            function getRandomInt(min, max) {
+                min = Math.ceil(min);
+                max = Math.floor(max);
+                return Math.floor(Math.random() * (max - min) + min);
+            }
         </script>
     </body>
 </html>
