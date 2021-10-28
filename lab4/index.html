@@ -26,7 +26,10 @@
                     ctx.closePath();
                     this.posY += 10;
                     if(this.posX > canvas.height)
+                    {
                         enemies.pop(this);
+                        delete(this);
+                    }
                 }
             }
 
@@ -184,7 +187,7 @@
                 enemies.forEach((enemy) => {
                     if(checkSignleCollision(enemy)) {
                         alert('Uderzyłes w przeszkodę.');
-                        deleteEnemy(enemy);
+                        deleteEnemies();
                     }
                 })
             }
@@ -195,10 +198,8 @@
                 return check;
             }
 
-            function deleteEnemy(enemy) {
-                let i = enemies.indexOf(enemy);
-                enemies.splice(i, 1);
-                delete enemy;
+            function deleteEnemies() {
+                enemies.length = 0;
             }
 
             function keyReaction(e) {
