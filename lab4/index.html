@@ -12,17 +12,19 @@
         <script>
             class Enemy{
                 constructor() {
-                    this.posX = getRandomInt(80, canvas.width - 80);
+                    this.posX = getRandomInt(100, canvas.width - 100);
                     this.posY = 0;
+                    this.width = 50;
+                    this.height = 50;
                 }
 
                 draw() {
                     ctx.beginPath();
-                    ctx.rect(this.posX, this.posY, 50, 50);
+                    ctx.rect(this.posX, this.posY, this.width, this.height);
                     ctx.fillStyle = 'blue';
                     ctx.fill();
                     ctx.closePath();
-                    this.posY += 8;
+                    this.posY += 10;
                     if(this.posX > canvas.height)
                         enemies.pop(this);
                 }
@@ -54,11 +56,11 @@
 
                 draw() {
                     ctx.beginPath();
-                    ctx.rect(this.posX, this.posY, 20, 80);
+                    ctx.rect(this.posX, this.posY, 20, 60);
                     ctx.fillStyle = 'white';
                     ctx.fill();
                     ctx.closePath();
-                    this.posY += 10;
+                    this.posY += 15;
                     if(this.posY > canvas.height)
                         this.posY = -120;
                 }
@@ -86,6 +88,8 @@
 
             let driverX = 150;
             let driverY = 350;
+            let driverWidth = 150;
+            let driverHeight = 200;
 
             const redboxes = [];
             const whitelines = [];
@@ -129,7 +133,7 @@
                 });
 
                 ctx.beginPath();
-                ctx.rect(driverX, driverY, 150, 200);
+                ctx.rect(driverX, driverY, driverWidth, driverHeight);
                 ctx.fillStyle = 'green';
                 ctx.fill();
             }
@@ -176,26 +180,37 @@
                 });
             }
 
-            setInterval(() => {
-                clearBoard();
-                drawMiddleLine();
-                drawLeftLine();
-                drawRightLine();
-                drawLeftRedBoxes();
-                drawEnemies();
-                drawDriver();
-            }, 30);
+            function checkCollisions() {
+                enemies.forEach((enemy) => {
+                    if(checkSignleCollision(enemy)) {
+                        alert('Uderzyłes w przeszkodę.');
+                        deleteEnemy(enemy);
+                    }
+                })
+            }
+
+            function checkSignleCollision(enemy)
+            {
+                let check = driverX < enemy.posX + enemy.width && driverX + driverWidth > enemy.posX && driverY + 10 < enemy.posY + enemy.height && driverHeight + driverY + 10 > enemy.posY;
+                return check;
+            }
+
+            function deleteEnemy(enemy) {
+                let i = enemies.indexOf(enemy);
+                enemies.splice(i, 1);
+                delete enemy;
+            }
 
             function keyReaction(e) {
                 e = e || window.event;
 
                 if(e.keyCode == '37')
                 {
-                    if(driverX > 70)
+                    if(driverX > 80)
                     {
-                        driverX -= 20;
+                        driverX -= 25;
                         wheels.forEach((wheel) => {
-                            wheel.posX -= 20;
+                            wheel.posX -= 25;
                         })
                     }
                 } 
@@ -203,15 +218,26 @@
                 {
                     if(driverX < 570)
                     {
-                        driverX += 20;
+                        driverX += 25;
                         wheels.forEach((wheel) => {
-                            wheel.posX += 20;
+                            wheel.posX += 25;
                         })
                     }
                 }
             }
 
-            setInterval(() => {
+            const mainLoop = setInterval(() => {
+                clearBoard();
+                drawMiddleLine();
+                drawLeftLine();
+                drawRightLine();
+                drawLeftRedBoxes();
+                drawEnemies();
+                drawDriver();
+                checkCollisions();
+            }, 30);
+
+            const enemySpawnerLoop =  setInterval(() => {
                 newEnemy = getRandomInt(1, 2);
                 if(newEnemy == 1)
                     enemies.push(new Enemy());
