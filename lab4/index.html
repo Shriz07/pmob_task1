@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+    </head>
+    <body>
+        <canvas id="myCanvas" width="800" height="600"></canvas>
+
+        <script>
+            class Enemy{
+                constructor() {
+                    this.posX = getRandomInt(80, canvas.width - 80);
+                    this.posY = 0;
+                }
+
+                draw() {
+                    ctx.beginPath();
+                    ctx.rect(this.posX, this.posY, 50, 50);
+                    ctx.fillStyle = 'blue';
+                    ctx.fill();
+                    ctx.closePath();
+                    this.posY += 8;
+                    if(this.posX > canvas.height)
+                        enemies.pop(this);
+                }
+            }
+
+            class RedBox{
+                constructor(x, y) {
+                    this.posX = x;
+                    this.posY = y;
+                }
+
+                draw() {
+                    ctx.beginPath();
+                    ctx.rect(this.posX, this.posY, 40, 60);
+                    ctx.fillStyle = 'red';
+                    ctx.fill();
+                    ctx.closePath();
+                    this.posY += 15;
+                    if(this.posY > canvas.height)
+                        this.posY = -120;
+                }
+            }
+
+            class WhiteLine{
+                constructor(x, y) {
+                    this.posX = x;
+                    this.posY = y;
+                }
+
+                draw() {
+                    ctx.beginPath();
+                    ctx.rect(this.posX, this.posY, 20, 80);
+                    ctx.fillStyle = 'white';
+                    ctx.fill();
+                    ctx.closePath();
+                    this.posY += 10;
+                    if(this.posY > canvas.height)
+                        this.posY = -120;
+                }
+            }
+
+            class Wheel{
+                constructor(x, y) {
+                    this.posX = x;
+                    this.posY = y;
+                }
+
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.posX, this.posY, 30, 0, 2 * Math.PI);
+                    ctx.fillStyle = 'black';
+                    ctx.fill();
+                    ctx.closePath();
+                }
+            }
+
+            var canvas = document.getElementById("myCanvas");
+            var ctx = canvas.getContext("2d");
+            ctx.fillStyle = 'grey';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            let driverX = 150;
+            let driverY = 350;
+
+            const redboxes = [];
+            const whitelines = [];
+            const wheels = [];
+            const enemies = [];
+            
+            enemies.push(new Enemy());
+
+            wheels.push(new Wheel(160, 400));
+            wheels.push(new Wheel(290, 400));
+            wheels.push(new Wheel(160, 500));
+            wheels.push(new Wheel(290, 500));
+
+            redboxes.push(new RedBox(0, -120));
+            redboxes.push(new RedBox(0, 0));
+            redboxes.push(new RedBox(0, 120));
+            redboxes.push(new RedBox(0, 240));
+            redboxes.push(new RedBox(0, 360));
+            redboxes.push(new RedBox(0, 480));
+            redboxes.push(new RedBox(0, 600));
+
+            redboxes.push(new RedBox(760, -120));
+            redboxes.push(new RedBox(760, 0));
+            redboxes.push(new RedBox(760, 120));
+            redboxes.push(new RedBox(760, 240));
+            redboxes.push(new RedBox(760, 360));
+            redboxes.push(new RedBox(760, 480));
+            redboxes.push(new RedBox(760, 600));
+
+            whitelines.push(new WhiteLine(380, -120));
+            whitelines.push(new WhiteLine(380, -0));
+            whitelines.push(new WhiteLine(380, 120));
+            whitelines.push(new WhiteLine(380, 240));
+            whitelines.push(new WhiteLine(380, 360));
+            whitelines.push(new WhiteLine(380, 480));
+            
+            function drawDriver()
+            {
+                wheels.forEach((wheel) => {
+                    wheel.draw();
+                });
+
+                ctx.beginPath();
+                ctx.rect(driverX, driverY, 150, 200);
+                ctx.fillStyle = 'green';
+                ctx.fill();
+            }
+
+            function drawMiddleLine()
+            {
+                whitelines.forEach((line) => {
+                    line.draw();
+                });
+            }
+
+            function drawLeftLine()
+            {
+                ctx.beginPath();
+                ctx.rect(0, 0, 40, canvas.height);
+                ctx.fillStyle = 'white';
+                ctx.fill();
+            }
+
+            function drawRightLine()
+            {
+                ctx.beginPath();
+                ctx.rect(canvas.width - 40, 0, 50, canvas.height);
+                ctx.fillStyle = 'white';
+                ctx.fill();
+            }
+
+            function drawLeftRedBoxes()
+            {
+                redboxes.forEach((box) => {
+                    box.draw();
+                });
+            }
+
+            function clearBoard() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = 'grey';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+
+            function drawEnemies() {
+                enemies.forEach((enemy) => {
+                    enemy.draw();
+                });
+            }
+
+            setInterval(() => {
+                clearBoard();
+                drawMiddleLine();
+                drawLeftLine();
+                drawRightLine();
+                drawLeftRedBoxes();
+                drawEnemies();
+                drawDriver();
+            }, 30);
+
+            function keyReaction(e) {
+                e = e || window.event;
+
+                if(e.keyCode == '37')
+                {
+                    if(driverX > 70)
+                    {
+                        driverX -= 20;
+                        wheels.forEach((wheel) => {
+                            wheel.posX -= 20;
+                        })
+                    }
+                } 
+                else if(e.keyCode == '39')
+                {
+                    if(driverX < 570)
+                    {
+                        driverX += 20;
+                        wheels.forEach((wheel) => {
+                            wheel.posX += 20;
+                        })
+                    }
+                }
+            }
+
+            setInterval(() => {
+                newEnemy = getRandomInt(1, 2);
+                if(newEnemy == 1)
+                    enemies.push(new Enemy());
+            }, 3000);
+
+            function getRandomInt(min, max) {
+                min = Math.ceil(min);
+                max = Math.floor(max);
+                return Math.floor(Math.random() * (max - min) + min);
+            }
+
+            document.onkeydown = keyReaction;
+        </script>
+    </body>
+</html>
