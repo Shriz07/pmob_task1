@@ -24,7 +24,7 @@
                     ctx.fillStyle = 'lime';
                     ctx.fill();
                     ctx.closePath();
-                    this.posY += 13;
+                    this.posY += speed + 3;
                 }
             }
 
@@ -42,7 +42,7 @@
                     ctx.fillStyle = 'orange';
                     ctx.fill();
                     ctx.closePath();
-                    this.posY -= 10;
+                    this.posY -= 20;
                 }
             }
 
@@ -60,7 +60,7 @@
                     ctx.fillStyle = 'black';
                     ctx.fill();
                     ctx.closePath();
-                    this.posY += 10;
+                    this.posY += speed;
                     if(this.posY > canvas.height)
                     {
                         enemies.pop(this);
@@ -81,7 +81,7 @@
                     ctx.fillStyle = 'red';
                     ctx.fill();
                     ctx.closePath();
-                    this.posY += 15;
+                    this.posY += speed;
                     if(this.posY > canvas.height)
                         this.posY = -120;
                 }
@@ -99,7 +99,7 @@
                     ctx.fillStyle = 'white';
                     ctx.fill();
                     ctx.closePath();
-                    this.posY += 15;
+                    this.posY += speed;
                     if(this.posY > canvas.height)
                         this.posY = -120;
                 }
@@ -130,6 +130,7 @@
             let driverWidth = 150;
             let driverHeight = 200;
             let points = 0;
+            let speed = 15;
 
             var directionFlag = '';
             var movingTimeout = -1; 
@@ -392,7 +393,15 @@
                     directionFlag = 'right';
                     startMoving(directionFlag);
                 }
-                else if(e.keyCode = '32')
+                else if(e.keyCode == '38') {
+                    if(speed < 25)
+                        speed+=5;
+                }
+                else if(e.keyCode == '40') {
+                    if(speed > 5)
+                        speed-=5;
+                }
+                else if(e.keyCode == '32')
                 {
                     bullets.push(new Bullet());
                 }
