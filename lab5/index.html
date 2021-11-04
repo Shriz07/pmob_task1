@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+    </head>
+    <body>
+        <canvas id="myCanvas" width="800" height="600"></canvas>
+
+        <script>
+            class Bonus{
+                constructor() {
+                    this.posX = getRandomInt(150, canvas.width - 150);
+                    this.posY = 0;
+                    this.width = 50;
+                    this.height = 50;
+                }
+
+                draw() {
+                    ctx.beginPath();
+                    ctx.rect(this.posX, this.posY, this.width, this.height);
+                    ctx.fillStyle = 'lime';
+                    ctx.fill();
+                    ctx.closePath();
+                    this.posY += 13;
+                }
+            }
+
+            class Bullet{
+                constructor() {
+                    this.posX = driverX + 60;
+                    this.posY = driverY - 50;
+                    this.width = 40;
+                    this.height = 40;
+                }
+
+                draw() {
+                    ctx.beginPath();
+                    ctx.rect(this.posX, this.posY, this.width, this.height);
+                    ctx.fillStyle = 'orange';
+                    ctx.fill();
+                    ctx.closePath();
+                    this.posY -= 10;
+                }
+            }
+
+            class Enemy{
+                constructor() {
+                    this.posX = getRandomInt(150, canvas.width - 150);
+                    this.posY = 0;
+                    this.width = 150;
+                    this.height = 50;
+                }
+
+                draw() {
+                    ctx.beginPath();
+                    ctx.rect(this.posX, this.posY, this.width, this.height);
+                    ctx.fillStyle = 'black';
+                    ctx.fill();
+                    ctx.closePath();
+                    this.posY += 10;
+                    if(this.posY > canvas.height)
+                    {
+                        enemies.pop(this);
+                        delete(this);
+                    }
+                }
+            }
+
+            class RedBox{
+                constructor(x, y) {
+                    this.posX = x;
+                    this.posY = y;
+                }
+
+                draw() {
+                    ctx.beginPath();
+                    ctx.rect(this.posX, this.posY, 40, 60);
+                    ctx.fillStyle = 'red';
+                    ctx.fill();
+                    ctx.closePath();
+                    this.posY += 15;
+                    if(this.posY > canvas.height)
+                        this.posY = -120;
+                }
+            }
+
+            class WhiteLine{
+                constructor(x, y) {
+                    this.posX = x;
+                    this.posY = y;
+                }
+
+                draw() {
+                    ctx.beginPath();
+                    ctx.rect(this.posX, this.posY, 20, 60);
+                    ctx.fillStyle = 'white';
+                    ctx.fill();
+                    ctx.closePath();
+                    this.posY += 15;
+                    if(this.posY > canvas.height)
+                        this.posY = -120;
+                }
+            }
+
+            class Wheel{
+                constructor(x, y) {
+                    this.posX = x;
+                    this.posY = y;
+                }
+
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.posX, this.posY, 30, 0, 2 * Math.PI);
+                    ctx.fillStyle = 'black';
+                    ctx.fill();
+                    ctx.closePath();
+                }
+            }
+
+            var canvas = document.getElementById("myCanvas");
+            var ctx = canvas.getContext("2d");
+            ctx.fillStyle = 'grey';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            let driverX = 150;
+            let driverY = 390;
+            let driverWidth = 150;
+            let driverHeight = 200;
+            let points = 0;
+
+            var directionFlag = '';
+            var movingTimeout = -1; 
+
+
+            const redboxes = [];
+            const whitelines = [];
+            const wheels = [];
+            const enemies = [];
+            const bullets = [];
+            const bonuses = [];
+            
+            enemies.push(new Enemy());
+
+            wheels.push(new Wheel(160, 440));
+            wheels.push(new Wheel(290, 440));
+            wheels.push(new Wheel(160, 540));
+            wheels.push(new Wheel(290, 540));
+
+            redboxes.push(new RedBox(0, -120));
+            redboxes.push(new RedBox(0, 0));
+            redboxes.push(new RedBox(0, 120));
+            redboxes.push(new RedBox(0, 240));
+            redboxes.push(new RedBox(0, 360));
+            redboxes.push(new RedBox(0, 480));
+            redboxes.push(new RedBox(0, 600));
+
+            redboxes.push(new RedBox(760, -120));
+            redboxes.push(new RedBox(760, 0));
+            redboxes.push(new RedBox(760, 120));
+            redboxes.push(new RedBox(760, 240));
+            redboxes.push(new RedBox(760, 360));
+            redboxes.push(new RedBox(760, 480));
+            redboxes.push(new RedBox(760, 600));
+
+            whitelines.push(new WhiteLine(380, -120));
+            whitelines.push(new WhiteLine(380, -0));
+            whitelines.push(new WhiteLine(380, 120));
+            whitelines.push(new WhiteLine(380, 240));
+            whitelines.push(new WhiteLine(380, 360));
+            whitelines.push(new WhiteLine(380, 480));
+            
+            function drawDriver()
+            {
+                wheels.forEach((wheel) => {
+                    wheel.draw();
+                });
+
+                ctx.beginPath();
+                ctx.rect(driverX, driverY, driverWidth, driverHeight);
+                ctx.fillStyle = 'green';
+                ctx.fill();
+            }
+
+            function drawMiddleLine()
+            {
+                whitelines.forEach((line) => {
+                    line.draw();
+                });
+            }
+
+            function drawLeftLine()
+            {
+                ctx.beginPath();
+                ctx.rect(0, 0, 40, canvas.height);
+                ctx.fillStyle = 'white';
+                ctx.fill();
+            }
+
+            function drawRightLine()
+            {
+                ctx.beginPath();
+                ctx.rect(canvas.width - 40, 0, 50, canvas.height);
+                ctx.fillStyle = 'white';
+                ctx.fill();
+            }
+
+            function drawLeftRedBoxes()
+            {
+                redboxes.forEach((box) => {
+                    box.draw();
+                });
+            }
+
+            function clearBoard() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = 'grey';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+
+            function drawEnemies() {
+                enemies.forEach((enemy) => {
+                    enemy.draw();
+                });
+            }
+
+            function drawBonuses() {
+                bonuses.forEach((bonus) => {
+                    bonus.draw();
+                })
+            }
+
+            function checkBulletsCollisions() {
+                enemies.forEach((enemy) => {
+                    bullets.forEach((bullet) => {
+                        if(checkCollisionWithBullet(enemy, bullet))
+                        {
+                            destroyEnemyAndBullet(enemy, bullet);
+                        }
+                    });
+                });
+            }
+
+            function destroyEnemyAndBullet(enemy, bullet) {
+                let i = bullets.indexOf(bullet);
+                bullets.splice(i, 1);
+                delete bullet;
+                i = enemies.indexOf(enemy);
+                enemies.splice(i, 1);
+                delete enemy;
+            }
+
+            function checkBonusCollisions() {
+                bonuses.forEach((bonus) => {
+                    if(checkCollisionWithDriver(bonus))
+                    {
+                        points++;
+                        let i = bonuses.indexOf(bonus);
+                        bonuses.splice(i, 1);
+                        delete bonus;
+                    }
+                });
+            }
+
+            function checkCollisions() {
+                enemies.forEach((enemy) => {
+                    if(checkCollisionWithDriver(enemy)) {
+                        alert('Uderzyłes w przeszkodę. Uzyskałeś ' + points + ' punktów.');
+                        points = 0;
+                        deleteEnemies();
+                        deleteBonuses();
+                        deleteBullets();
+                    }
+                })
+            }
+
+            function checkCollisionWithDriver(enemy)
+            {
+                let check = driverX < enemy.posX + enemy.width && driverX + driverWidth > enemy.posX && driverY + 10 < enemy.posY + enemy.height && driverHeight + driverY + 10 > enemy.posY;
+                return check;
+            }
+
+            function checkCollisionWithBullet(enemy, bullet)
+            {
+                let check = bullet.posX < enemy.posX + enemy.width && bullet.posX + bullet.width > enemy.posX && bullet.posY + 10 < enemy.posY + enemy.height && bullet.height + bullet.posY + 10 > enemy.posY;
+                return check;
+            }
+
+            function deleteEnemies() {
+                enemies.length = 0;
+            }
+
+            function deleteBonuses() {
+                bonuses.length = 0;
+            }
+
+            function deleteBullets() {
+                bullets.length = 0;
+            }
+
+            function moveBullets()
+            {
+                bullets.forEach((bullet) => {
+                    bullet.draw();
+                });
+            }
+
+            function stopMoving() {
+                clearTimeout(movingTimeout);
+                movingTimeout = -1;
+            }
+
+            function startMoving(direction) {
+                if(movingTimeout === -1) {
+                    loop(direction);
+                }
+            }
+
+            function loop(direction) {
+                move(direction);
+                movingTimeout = setTimeout(loop, 10, direction);
+            }
+
+            function move(direction) {
+                if(direction == 'left' && driverX > 80)
+                {
+                    driverX -= 10;
+                    wheels.forEach((wheel) => {
+                        wheel.posX -= 10;
+                    });
+                }
+                else if(direction == 'right' && driverX < 570)
+                {
+                    driverX += 10;
+                    wheels.forEach((wheel) => {
+                        wheel.posX += 10;
+                    });
+                }
+            }
+
+            function drawPoints() {
+                ctx.font = "30px Arial";
+                ctx.fillStyle = "red";
+                ctx.fillText('Punkty: ' + points, 50, 50);
+            }
+
+            const mainLoop = setInterval(() => {
+                clearBoard();
+                drawMiddleLine();
+                drawLeftLine();
+                drawRightLine();
+                drawLeftRedBoxes();
+                drawEnemies();
+                drawBonuses();
+                drawDriver();
+                moveBullets();
+                checkBonusCollisions();
+                checkBulletsCollisions();
+                drawPoints();
+                checkCollisions();
+            }, 30);
+
+            const enemySpawnerLoop =  setInterval(() => {
+                newEnemy = getRandomInt(1, 2);
+                if(newEnemy == 1)
+                    enemies.push(new Enemy());
+            }, 2000);
+
+            const bonusSpawnerLoop = setInterval(() => {
+                newBonus = getRandomInt(1, 2);
+                if(newBonus == 1)
+                {
+                    bonuses.push(new Bonus());
+                }
+            }, 4500);
+
+            function getRandomInt(min, max) {
+                min = Math.ceil(min);
+                max = Math.floor(max);
+                return Math.floor(Math.random() * (max - min) + min);
+            }
+
+            document.onkeydown = (e) => {
+                e = e || window.event;
+                if(e.keyCode == '37') {
+                    directionFlag = 'left';
+                    startMoving(directionFlag);
+                }
+                else if(e.keyCode == '39') {
+                    directionFlag = 'right';
+                    startMoving(directionFlag);
+                }
+                else if(e.keyCode = '32')
+                {
+                    bullets.push(new Bullet());
+                }
+            }
+
+            document.onkeyup = (e) => {
+                e = e || window.event;
+                if(e.keyCode == '37') {
+                    directionFlag = '';
+                    stopMoving();
+                }
+                else if(e.keyCode == '39') {
+                    directionFlag = '';
+                    stopMoving();
+                }
+            };
+        </script>
+    </body>
+</html>
