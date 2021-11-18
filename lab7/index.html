@@ -133,14 +133,14 @@
 
             function drawDriver()
             {
-                wheels.forEach((wheel) => {
-                    wheel.draw();
-                });
-
                 ctx.beginPath();
                 ctx.rect(driverX, driverY, driverWidth, driverHeight);
                 ctx.fillStyle = 'green';
                 ctx.fill();
+            
+                wheels.forEach((wheel) => {
+                    wheel.draw();
+                });
             }
 
             function clearBoard() {
