@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+        <style>
+            body {
+                margin: 0;
+                background-color: grey;
+            }
+            canvas {
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                margin: auto;
+                display: block;
+                position: absolute;
+                -webkit-transition: -webkit-transform 3s ease-in-out;
+                -ms-transition: -ms-transform 3s ease-in-out;
+                transition: transform 3s ease-in-out;  
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="myCanvas" width="800" height="600"></canvas>
+
+        <script>
+            class WhiteLine{
+                constructor(x, y) {
+                    this.posX = x;
+                    this.posY = y;
+                }
+
+                draw() {
+                    ctx.beginPath();
+                    ctx.rect(this.posX, this.posY, 20, 60);
+                    ctx.fillStyle = 'white';
+                    ctx.fill();
+                    ctx.closePath();
+                    this.posY += speed;
+                    if(this.posY > canvas.height)
+                        this.posY = -120;
+                }
+            }
+
+            class RedBox{
+                constructor(x, y) {
+                    this.posX = x;
+                    this.posY = y;
+                }
+
+                draw() {
+                    ctx.beginPath();
+                    ctx.rect(this.posX, this.posY, 50, 40);
+                    ctx.fillStyle = 'red';
+                    ctx.fill();
+                    ctx.closePath();
+                    this.posX -= gameSpeed;
+                    if(this.posX < -60)
+                        this.posX = canvas.width + 60;
+                }
+            }
+
+            class Wheel{
+                constructor(x, y) {
+                    this.posX = x;
+                    this.posY = y;
+                }
+
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.posX, this.posY, 20, 0, 2 * Math.PI);
+                    ctx.fillStyle = 'black';
+                    ctx.fill();
+                    ctx.closePath();
+                }
+            }
+
+            class Enemy{
+                constructor()
+                {
+                    this.posX = canvas.width + 50;
+                    this.posY = 340;
+                    this.width = 50;
+                    this.height = 60;
+                }
+
+                draw()
+                {
+                    ctx.beginPath();
+                    ctx.rect(this.posX, this.posY, this.width, this.height);
+                    ctx.fillStyle = 'blue';
+                    ctx.fill();
+                    ctx.closePath();
+                    this.posX -= gameSpeed;
+                }
+            }
+
+            var canvas = document.getElementById("myCanvas");
+            var ctx = canvas.getContext("2d");
+            ctx.fillStyle = 'grey';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            let isJumping = false;
+            let jumpDirection = 'up';
+            let currentJump = 0;
+            let gameSpeed = 10;
+            let driverWidth = 130;
+            let driverHeight = 70;
+            let driverX = 100;
+            let driverY = canvas.height - 200 - driverHeight - 25;
+            let originalDriverY = canvas.height - 200 - driverHeight - 25;
+            let points = 0;
+
+            const redboxes = [];
+            const wheels = [];
+            const enemies = [];
+
+            wheels.push(new Wheel(125, 380));
+            wheels.push(new Wheel(205, 380));
+
+            redboxes.push(new RedBox(800, canvas.height - 200));
+            redboxes.push(new RedBox(690, canvas.height - 200));
+            redboxes.push(new RedBox(570, canvas.height - 200));
+            redboxes.push(new RedBox(450, canvas.height - 200));
+            redboxes.push(new RedBox(330, canvas.height - 200));
+            redboxes.push(new RedBox(210, canvas.height - 200));
+            redboxes.push(new RedBox(90, canvas.height - 200));
+            redboxes.push(new RedBox(-25, canvas.height - 200));
+
+            function drawDriver()
+            {
+                wheels.forEach((wheel) => {
+                    wheel.draw();
+                });
+
+                ctx.beginPath();
+                ctx.rect(driverX, driverY, driverWidth, driverHeight);
+                ctx.fillStyle = 'green';
+                ctx.fill();
+            }
+
+            function clearBoard() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = 'grey';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+
+            function drawWhiteLine()
+            {
+                ctx.beginPath();
+                ctx.rect(0, canvas.height - 200, canvas.width, 40);
+                ctx.fillStyle = 'white';
+                ctx.fill(); 
+            }
+
+            function drawRedBoxes()
+            {
+                redboxes.forEach((box) => {
+                    box.draw();
+                });
+            }
+
+            function drawEnemies()
+            {
+                enemies.forEach((enemy) => {
+                    enemy.draw();
+                })
+            }
+
+            function checkCollisions()
+            {
+                enemies.forEach((enemy) => {
+                    if(checkSingleCollision(enemy))
+                    {
+                        alert('Uderzyłeś w przeszkodę. Zdobyłes: ' + points + ' punktów.');
+                        points = 0;
+                        deleteEnemies();
+                    }
+                })
+            }
+
+
+            function checkSingleCollision(enemy)
+            {
+                let check = driverX < enemy.posX + enemy.width && driverX + driverWidth > enemy.posX && driverY + 10 < enemy.posY + enemy.height && driverHeight + driverY + 10 > enemy.posY;
+                return check;
+            }
+
+            function deleteEnemies()
+            {
+                enemies.length = 0;
+            }
+
+            function jump()
+            {
+                if(isJumping == true)
+                {
+                    if(jumpDirection == 'up')
+                    {
+
+                        currentJump += 1;
+                        driverY -= currentJump;
+                        wheels.forEach((wheel) =>{
+                            wheel.posY -= currentJump;
+                        });
+                        if(currentJump > 23)
+                            jumpDirection = 'down';
+                    }
+                    else
+                    {
+                        jumpDirection = 'down';
+                        driverY += currentJump;
+                        wheels.forEach((wheel) =>{
+                            wheel.posY += currentJump;
+                        });
+                        currentJump -= 1;
+                    }
+                    if(driverY == originalDriverY || currentJump < 0)
+                    {
+                        jumpDirection = 'up';
+                        isJumping = false;
+                        driverY = originalDriverY;
+                        wheels.forEach((wheel) =>{
+                            wheel.posY = 380;
+                        });
+                    }
+                }
+            }
+
+            function drawPoints() {
+                ctx.font = "30px Arial";
+                ctx.fillStyle = "white";
+                ctx.fillText('Punkty: ' + points, 650, 50);
+            }
+
+            const mainLoop = setInterval(() => {
+                clearBoard();
+                drawWhiteLine();
+                drawRedBoxes();
+                drawDriver();
+                drawEnemies();
+                jump();
+                drawPoints();
+                checkCollisions();
+            }, 20);
+
+            const pointsLoop = setInterval(() => {
+                points += 1;
+            }, 500);
+
+            const enemyLoop = setInterval(() => {
+                enemies.push(new Enemy());
+            }, 2000);
+
+            document.onkeydown = (e) => {
+                e = e || window.event;
+                if(e.keyCode == '32')
+                {
+                    if(isJumping == false)
+                    {
+                        isJumping = true;
+                    }
+                }
+            }
+
+        </script>
+    </body>
+</html>
