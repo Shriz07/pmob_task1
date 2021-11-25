@@ -216,7 +216,7 @@
 
             function checkSingleCollision(enemy)
             {
-                let check = driverX < enemy.posX + enemy.width && driverX + driverWidth > enemy.posX && driverY + 10 < enemy.posY + enemy.height && driverHeight + driverY + 10 > enemy.posY;
+                let check = driverX < enemy.posX + enemy.width && driverX + driverWidth > enemy.posX && driverY + 10 < enemy.posY + enemy.height && driverHeight - 20 + driverY + 10 > enemy.posY;
                 return check;
             }
 
