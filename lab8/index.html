@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+        <style>
+            body {
+                margin: 0;
+                background-color: grey;
+            }
+            canvas {
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                margin: auto;
+                display: block;
+                position: absolute;
+                -webkit-transition: -webkit-transform 3s ease-in-out;
+                -ms-transition: -ms-transform 3s ease-in-out;
+                transition: transform 3s ease-in-out;  
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="myCanvas" width="800" height="600"></canvas>
+
+        <script>
+            class WhiteLine{
+                constructor(x, y) {
+                    this.posX = x;
+                    this.posY = y;
+                }
+
+                draw() {
+                    ctx.beginPath();
+                    ctx.rect(this.posX, this.posY, 20, 60);
+                    ctx.fillStyle = 'white';
+                    ctx.fill();
+                    ctx.closePath();
+                    this.posY += speed;
+                    if(this.posY > canvas.height)
+                        this.posY = -120;
+                }
+            }
+
+            class Bullet{
+                constructor() {
+                    this.posX = driverX + 130;
+                    this.posY = driverY + 40;
+                    this.width = 20;
+                    this.height = 20;
+                }
+
+                draw() {
+                    ctx.beginPath();
+                    ctx.rect(this.posX, this.posY, this.width, this.height);
+                    ctx.fillStyle = 'orange';
+                    ctx.fill();
+                    ctx.closePath();
+                    this.posX += 20;
+                }
+            }
+
+            class RedBox{
+                constructor(x, y) {
+                    this.posX = x;
+                    this.posY = y;
+                }
+
+                draw() {
+                    ctx.beginPath();
+                    ctx.rect(this.posX, this.posY, 50, 40);
+                    ctx.fillStyle = 'red';
+                    ctx.fill();
+                    ctx.closePath();
+                    this.posX -= gameSpeed;
+                    if(this.posX < -60)
+                        this.posX = canvas.width + 60;
+                }
+            }
+
+            class Enemy{
+                constructor()
+                {
+                    this.posX = canvas.width + 50;
+                    this.posY = 340;
+                    this.width = 60;
+                    this.height = 60;
+                }
+
+                draw()
+                {
+                    ctx.beginPath();
+                    ctx.drawImage(box, this.posX, this.posY, this.width, this.height);
+                    ctx.closePath();
+                    this.posX -= gameSpeed;
+                }
+            }
+
+            var canvas = document.getElementById("myCanvas");
+            var ctx = canvas.getContext("2d");
+            ctx.fillStyle = 'grey';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            var car = new Image();
+            car.src = 'car.png';
+            var box = new Image();
+            box.src = 'box.png';
+
+            let isJumping = false;
+            let jumpDirection = 'up';
+            let currentJump = 0;
+            let gameSpeed = 10;
+            let driverWidth = 150;
+            let driverHeight = 80;
+            let driverX = 70;
+            let driverY = canvas.height - 200 - driverHeight;
+            let originalDriverY = canvas.height - 200 - driverHeight;
+            let points = 0;
+
+            const redboxes = [];
+            const enemies = [];
+            const bullets = [];
+
+            redboxes.push(new RedBox(800, canvas.height - 200));
+            redboxes.push(new RedBox(690, canvas.height - 200));
+            redboxes.push(new RedBox(570, canvas.height - 200));
+            redboxes.push(new RedBox(450, canvas.height - 200));
+            redboxes.push(new RedBox(330, canvas.height - 200));
+            redboxes.push(new RedBox(210, canvas.height - 200));
+            redboxes.push(new RedBox(90, canvas.height - 200));
+            redboxes.push(new RedBox(-25, canvas.height - 200));
+
+            function drawDriver()
+            {
+                ctx.beginPath();
+                ctx.drawImage(car, driverX, driverY, driverWidth, driverHeight);
+                ctx.fill();
+        
+            }
+
+            function clearBoard() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = 'grey';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+
+            function drawWhiteLine()
+            {
+                ctx.beginPath();
+                ctx.rect(0, canvas.height - 200, canvas.width, 40);
+                ctx.fillStyle = 'white';
+                ctx.fill(); 
+            }
+
+            function drawRedBoxes()
+            {
+                redboxes.forEach((box) => {
+                    box.draw();
+                });
+            }
+
+            function drawEnemies()
+            {
+                enemies.forEach((enemy) => {
+                    enemy.draw();
+                })
+            }
+
+            function drawBullets()
+            {
+                bullets.forEach((bullet) => {
+                    bullet.draw();
+                })
+            }
+
+            function checkBulletCollisions() {
+                enemies.forEach((enemy) => {
+                    bullets.forEach((bullet) => {
+                        if(checkCollisionWithBullet(enemy, bullet))
+                        {
+                            destroyEnemyAndBullet(enemy, bullet);
+                        }
+                    });
+                });
+            }
+
+            function destroyEnemyAndBullet(enemy, bullet) {
+                let i = bullets.indexOf(bullet);
+                bullets.splice(i, 1);
+                delete bullet;
+                i = enemies.indexOf(enemy);
+                enemies.splice(i, 1);
+                delete enemy;
+            }
+
+            function checkCollisionWithBullet(enemy, bullet) {
+                let check = bullet.posX < enemy.posX + enemy.width && bullet.posX + bullet.width > enemy.posX && bullet.posY + 10 < enemy.posY + enemy.height && bullet.height + bullet.posY + 10 > enemy.posY;
+                return check;
+            }
+
+            function checkCollisions()
+            {
+                enemies.forEach((enemy) => {
+                    if(checkSingleCollision(enemy))
+                    {
+                        alert('Uderzyłeś w przeszkodę. Zdobyłes: ' + points + ' punktów.');
+                        points = 0;
+                        deleteEnemies();
+                    }
+                })
+            }
+
+
+            function checkSingleCollision(enemy)
+            {
+                let check = driverX < enemy.posX + enemy.width && driverX + driverWidth > enemy.posX && driverY + 10 < enemy.posY + enemy.height && driverHeight + driverY + 10 > enemy.posY;
+                return check;
+            }
+
+            function deleteEnemies()
+            {
+                enemies.length = 0;
+            }
+
+            function jump()
+            {
+                if(isJumping == true)
+                {
+                    if(jumpDirection == 'up')
+                    {
+
+                        currentJump += 1;
+                        driverY -= currentJump;
+                        if(currentJump > 23)
+                            jumpDirection = 'down';
+                    }
+                    else
+                    {
+                        jumpDirection = 'down';
+                        driverY += currentJump;
+                        currentJump -= 1;
+                    }
+                    if(driverY == originalDriverY || currentJump < 0)
+                    {
+                        jumpDirection = 'up';
+                        isJumping = false;
+                        driverY = originalDriverY;
+                    }
+                }
+            }
+
+            function drawPoints() {
+                ctx.font = "30px Arial";
+                ctx.fillStyle = "white";
+                ctx.fillText('Punkty: ' + points, 650, 50);
+            }
+
+            const mainLoop = setInterval(() => {
+                clearBoard();
+                drawWhiteLine();
+                drawRedBoxes();
+                drawDriver();
+                drawEnemies();
+                drawBullets();
+                jump();
+                drawPoints();
+                checkBulletCollisions();
+                checkCollisions();
+            }, 20);
+
+            const pointsLoop = setInterval(() => {
+                points += 1;
+            }, 500);
+
+            const enemyLoop = setInterval(() => {
+                enemies.push(new Enemy());
+            }, 2000);
+
+            document.onkeydown = (e) => {
+                e = e || window.event;
+                if(e.keyCode == '32')
+                {
+                    if(isJumping == false)
+                    {
+                        isJumping = true;
+                    }
+                }
+                if(e.keyCode == '67')
+                {
+                    bullets.push(new Bullet());
+                    var sound = new Audio('shot2.mp3');
+                    sound.play();
+                }
+            }
+        </script>
+    </body>
+</html>
